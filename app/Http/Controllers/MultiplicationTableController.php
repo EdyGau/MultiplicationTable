@@ -20,18 +20,18 @@ class MultiplicationTableController extends BaseController
         $this->multiplicationTableRepository = $multiplicationTableRepository;
     }
 
-    private function sizeValidator($size): JsonResponse|null
+    private function sizeValidator($size): JsonResponse|bool
     {
         if ($size < 1 || $size > 100 || !is_numeric($size)) {
             $message = 'Invalid size. Only numbers from 1 to 100.';
             return response()->json([$message], 400);
         }
 
-        return null;
+        return true;
     }
 
     /**
-     * Function for generate multiplication tble.
+     * Function for generate multiplication table.
      * 
      * @param Request $request.
      * @return Response|JsonResponse Json with table or error message.
@@ -41,8 +41,8 @@ class MultiplicationTableController extends BaseController
         $size = $request->input('size');
 
         $validation = $this->sizeValidator($size);
-        if ($validation) {
-            return $validation;
+        if ($validation !== true) {
+            return $validation; 
         }
 
         $mTableExists = $this->multiplicationTableRepository->findBySize($size);

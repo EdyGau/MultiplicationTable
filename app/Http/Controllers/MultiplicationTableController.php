@@ -2,60 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\MultiplicationTableControllerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use App\Http\Services\MultiplicationTableService;
-use App\Repositories\MultiplicationTableRepository;
 use Illuminate\Http\JsonResponse;
 
-class MultiplicationTableController extends BaseController
+class MultiplicationTableController extends BaseController implements MultiplicationTableControllerInterface
 {
     private $multiplicationTableService;
-    private $multiplicationTableRepository;
 
-    public function __construct(MultiplicationTableService $multiplicationTableService, MultiplicationTableRepository $multiplicationTableRepository)
+    public function __construct(MultiplicationTableService $multiplicationTableService,)
     {
         $this->multiplicationTableService = $multiplicationTableService;
-        $this->multiplicationTableRepository = $multiplicationTableRepository;
-    }
-
-    private function sizeValidator($size): JsonResponse|bool
-    {
-        if ($size < 1 || $size > 100 || !is_numeric($size)) {
-            $message = 'Invalid size. Only numbers from 1 to 100.';
-            return response()->json([$message], 400);
-        }
-
-        return true;
     }
 
     /**
-     * Function for generate multiplication table.
+     * Function for showing multiplication table
      * 
      * @param Request $request.
      * @return Response|JsonResponse Json with table or error message.
      */
-    public function generateMultiplicationTable(Request $request): Response|JsonResponse
+    public function showMultiplicationTable(Request $request): Response|JsonResponse
     {
         $size = $request->input('size');
-
-        $validation = $this->sizeValidator($size);
-        if ($validation !== true) {
-            return $validation; 
-        }
-
-        $mTableExists = $this->multiplicationTableRepository->findBySize($size);
-
-        if ($mTableExists) {
-            return Response($mTableExists->data);
-        }
-
-        $mTable = $this->multiplicationTableService->generateMultiplicationTable($size);
-        $result = json_encode($mTable, true);
-
-        $this->multiplicationTableRepository->create($size, $result);
-
-        return Response($result);
+        $mTable = $this->multiplicationTableService->generateMultiplicationTableBySize($size);
+    
+        return $mTable;
     }
 }

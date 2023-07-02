@@ -18,5 +18,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/multiplication-table', [MultiplicationTableController::class, 'generateMultiplicationTable'])
+Route::get('/multiplication-table', [MultiplicationTableController::class, 'showMultiplicationTable'])
     ->name('multiplication-table');

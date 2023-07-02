@@ -2,27 +2,34 @@
 
 namespace App\Http\Services;
 
-class MultiplicationTableService 
+use Illuminate\Http\JsonResponse;
+use App\Http\Helpers\MultiplicationTableHelper;
+use App\Contracts\MultiplicationTableServiceInterface;
+
+class MultiplicationTableService implements MultiplicationTableServiceInterface
 {
-    /**
-     * Generates a multiplication table.
-     *
-     * @param int $size.
-     */
-    function generateMultiplicationTable($size)
+    private $validationService;
+
+    public function __construct(ValidationService $validationService)
     {
-        $arr = [];
+        $this->validationService = $validationService;
+    }
 
-        for ($i = 1; $i <= $size; $i++) {
-            $res = [];
-
-            for ($j = 1; $j <= $size; $j++) {
-                $res[$j] = $i * $j;
-            }
-
-            $arr[$i] = $res;
+    /**
+     * Generates a multiplication table of the specified size.
+     *
+     * @param int $size The size of the multiplication table.
+     * @return JsonResponse The generated multiplication table as a JSON response.
+     */
+    public function generateMultiplicationTableBySize($size): JsonResponse
+    {
+        $validation = $this->validationService->sizeValidator($size);
+        if ($validation !== true) {
+            return $validation;
         }
 
-        return $arr;
+        $mTable = MultiplicationTableHelper::generateTable($size);
+
+        return response()->json($mTable);
     }
 }
